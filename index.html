@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Broad-Phase — Uzamsal Hash Izgarası</title>
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        background: #0f172a;
+        font-family: system-ui, sans-serif;
+      }
+      canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        touch-action: none;
+      }
+      .controls {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        gap: 8px;
+      }
+      button {
+        padding: 8px 12px;
+        border: 0;
+        border-radius: 6px;
+        background: #ec4899;
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+    <div class="controls">
+      <button id="add">+500 cisim</button>
+      <button id="toggle">naif / grid geçişi</button>
+    </div>
+    <script type="module" src="/src/demo.ts"></script>
+  </body>
+</html>
