@@ -23,15 +23,18 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      # npm ci, lockfile'daki eksik optional bagimlilik yuzunden rollup Linux ikilisini
-      # kurmuyor (npm optional-dep hatasi); install platforma gore cozuyor.
-      - run: npm install --no-audit --no-fund
+      # npm ci does not install the rollup Linux binary because of a missing optional
+      # dependency in the lockfile (npm optional-dep bug); install resolves it per platform.
+      # npm's optional-dependency bug (npm/cli#4828): the lockfile resolves without
+      # @rollup/rollup-linux-x64-gnu, so the build cannot start. Dropping the lockfile
+      # in the runner workspace lets npm resolve the binary for this platform.
+      - run: rm -f package-lock.json && npm install --no-audit --no-fund
       - run: npm test --if-present
         continue-on-error: true
-      # Pages projeyi alt yolda sunar; base CLI'dan veriliyor ki depo kaynagi degismesin.
+      # Pages serves the project under a sub-path; base is passed on the CLI so the repo source stays unchanged.
       - run: npx vite build --base=/broad-phase-collision-spatial-hash/
-      # Koke mutlak sayfa linkleri alt yolda kirilir; build ciktisinda goreliye cevir.
-      - name: Sayfa arasi linkleri goreli yap
+      # Root-absolute page links break under a sub-path; rewrite them as relative in the build output.
+      - name: Make cross-page links relative
         run: |
           find dist -name '*.html' -print0 | xargs -0 -r sed -i             -e 's|href="/\([A-Za-z0-9._-]*\.html\)"|href="./\1"|g'             -e 's|href="/"|href="./index.html"|g'
       - uses: actions/configure-pages@v5
