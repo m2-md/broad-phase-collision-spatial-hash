@@ -1,5 +1,9 @@
 # Broad-Phase Collision — Spatial Hash Grid
 
+<!-- LINKS:BEGIN — üretildi: scripts/sync-repo-links.py · elle düzenleme -->
+**▶ [Live demo](https://m2-md.github.io/broad-phase-collision-spatial-hash/)** · [Source](https://github.com/m2-md/broad-phase-collision-spatial-hash)
+<!-- LINKS:END -->
+
 Working code for the article "Shaking Hands with Everyone: Broad-Phase Collision
 and the Spatial Hash Grid from 200 Objects to 20,000". It takes the naive O(n²)
 pair-by-pair collision test down to near-linear with a spatial hash grid — without
