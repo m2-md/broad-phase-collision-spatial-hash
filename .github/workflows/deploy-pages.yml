@@ -23,7 +23,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci || npm install
+      # npm ci, lockfile'daki eksik optional bagimlilik yuzunden rollup Linux ikilisini
+      # kurmuyor (npm optional-dep hatasi); install platforma gore cozuyor.
+      - run: npm install --no-audit --no-fund
       - run: npm test --if-present
         continue-on-error: true
       # Pages projeyi alt yolda sunar; base CLI'dan veriliyor ki depo kaynagi degismesin.
