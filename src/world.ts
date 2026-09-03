@@ -5,14 +5,14 @@ import { SpatialHashGrid } from "./grid";
 export interface ContactEvent {
   a: Body;
   b: Body;
-  speed: number; // normal boyunca yaklaşma hızı (px/s)
+  speed: number; // approach speed along the normal (px/s)
 }
 
 type ContactListener = (e: ContactEvent) => void;
 
 export class World {
   bodies: Body[] = [];
-  grid = new SpatialHashGrid<Body>(48); // hücre ≈ en büyük çapın 1-2 katı
+  grid = new SpatialHashGrid<Body>(48); // cell size ≈ 1-2x the largest diameter
   gravity: Vec2;
   private listeners: ContactListener[] = [];
 
@@ -42,21 +42,21 @@ export class World {
   }
 
   step(dt: number) {
-    // 1. Entegrasyon (aynı)
+    // 1. Integration (same)
     for (const b of this.bodies) {
       if (b.invMass === 0) continue;
       b.vel = add(b.vel, scale(this.gravity, dt));
       b.pos = add(b.pos, scale(b.vel, dt));
     }
 
-    // 2. Duvar çarpışmaları (aynı)
+    // 2. Wall collisions (same)
     for (const b of this.bodies) this.collideWalls(b);
 
-    // 3. BROAD-PHASE: ızgarayı her kare temizle ve doldur
+    // 3. BROAD-PHASE: clear and populate the grid every frame
     this.grid.clear();
     for (const b of this.bodies) this.grid.insert(b);
 
-    // 4. NARROW-PHASE: sadece aday çiftler için mevcut çözücü
+    // 4. NARROW-PHASE: run the current solver only for candidate pairs
     for (const [a, b] of this.grid.queryPairs()) {
       this.collideBodies(a, b);
     }
@@ -85,27 +85,27 @@ export class World {
 
   private collideBodies(a: Body, b: Body) {
     const totalInvMass = a.invMass + b.invMass;
-    if (totalInvMass === 0) return; // iki statik cisim çarpışamaz
+    if (totalInvMass === 0) return; // two static bodies cannot collide
 
     const delta = sub(b.pos, a.pos);
     const dist = length(delta);
     const minDist = a.radius + b.radius;
-    if (dist >= minDist || dist === 0) return; // temas yok
+    if (dist >= minDist || dist === 0) return; // no contact
 
-    const normal = normalize(delta); // a'dan b'ye çarpışma yönü
+    const normal = normalize(delta); // collision direction from a to b
     const relVel = sub(b.vel, a.vel);
-    const approach = dot(relVel, normal); // normal boyunca yaklaşma hızı
-    if (approach > 0) return; // zaten ayrılıyorlar
+    const approach = dot(relVel, normal); // approach speed along normal
+    if (approach > 0) return; // already separating
 
     this.emitContact(a, b, -approach);
 
-    // Impulse: çarpışmanın "şiddetini" tek sayıya indirger
+    // Impulse: reduces collision "intensity" to a single scalar
     const e = Math.min(a.bounciness, b.bounciness);
     const impulse = (-(1 + e) * approach) / totalInvMass;
     a.vel = sub(a.vel, scale(normal, impulse * a.invMass));
     b.vel = add(b.vel, scale(normal, impulse * b.invMass));
 
-    // İç içe geçmeyi düzelt: herkes kütlesi oranında geri çekilir
+    // Positional correction: each body resolves overlap proportional to inverse mass
     const overlap = minDist - dist;
     a.pos = sub(a.pos, scale(normal, overlap * (a.invMass / totalInvMass)));
     b.pos = add(b.pos, scale(normal, overlap * (b.invMass / totalInvMass)));

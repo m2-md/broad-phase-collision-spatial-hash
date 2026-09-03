@@ -4,5 +4,5 @@ export function circlesOverlap(a: HasBounds, b: HasBounds): boolean {
   const dx = a.pos.x - b.pos.x;
   const dy = a.pos.y - b.pos.y;
   const r = a.radius + b.radius;
-  return dx * dx + dy * dy < r * r; // karekök yok — mesafe² karşılaştırması yeter
+  return dx * dx + dy * dy < r * r; // no square root — distance squared comparison is sufficient
 }

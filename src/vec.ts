@@ -1,4 +1,4 @@
-// Vektörler: fiziğin alfabesi. 2D dünyada her şey iki sayıdır.
+// Vectors: the alphabet of physics. In a 2D world everything is two numbers.
 export type Vec2 = { x: number; y: number };
 
 export const vec = (x = 0, y = 0): Vec2 => ({ x, y });

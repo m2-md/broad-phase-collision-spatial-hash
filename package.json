@@ -1,7 +1,7 @@
 {
   "name": "broad-phase-collision-spatial-hash",
   "version": "1.0.0",
-  "description": "Broad-phase çarpışma: uzamsal hash ızgarası + quadtree ile O(n²) çift döngüyü neredeyse-doğrusala indirmek",
+  "description": "Broad-phase 2D collision detection: comparing naive O(n\u00b2) pairwise checks against spatial hash grid and quadtree spatial partitioning algorithms.",
   "type": "module",
   "license": "MIT",
   "scripts": {

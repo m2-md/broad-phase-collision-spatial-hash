@@ -5,7 +5,7 @@ export function countNaiveChecks(n: number): number {
   let checks = 0;
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
-      checks++; // burada gerçek collideBodies çağrılırdı
+      checks++; // this is where real collideBodies would be called
     }
   }
   return checks;
@@ -20,7 +20,7 @@ export function sweepCellSize(items: HasBounds[], sizes: number[]) {
   });
 }
 
-// mulberry32: küçük, hızlı, deterministik PRNG
+// mulberry32: small, fast, deterministic PRNG
 function makeRng(seed: number): () => number {
   return () => {
     seed |= 0;
@@ -31,10 +31,10 @@ function makeRng(seed: number): () => number {
   };
 }
 
-// Sabit YOĞUNLUK: dünya alanı nesne sayısıyla büyür (kümelenme yok).
+// Constant DENSITY: world area scales with object count (no clustering).
 export function makeScene(n: number, seed = 1): HasBounds[] {
   const rng = makeRng(seed);
-  const world = Math.sqrt(n) * 40; // yoğunluğu sabit tut
+  const world = Math.sqrt(n) * 40; // keep density constant
   const items: HasBounds[] = [];
   for (let i = 0; i < n; i++) {
     items.push({
@@ -48,10 +48,10 @@ export function makeScene(n: number, seed = 1): HasBounds[] {
 export function benchmark(n: number) {
   const scene = makeScene(n);
 
-  // Naif: her çift bir kez — kapalı form n(n-1)/2 (n büyükken 200M döngüye gerek yok).
+  // Naive: each pair once — closed form n*(n-1)/2 (no need for 200M loops when n is large).
   const naive = (n * (n - 1)) / 2;
 
-  // Izgara
+  // Spatial hash grid
   const grid = new SpatialHashGrid<HasBounds>(24);
   for (const it of scene) grid.insert(it);
   const gridPairs = grid.queryPairs().length;

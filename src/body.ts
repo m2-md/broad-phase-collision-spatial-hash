@@ -4,8 +4,8 @@ export interface Body {
   pos: Vec2;
   vel: Vec2;
   radius: number;
-  invMass: number; // 1/kütle — statik cisimler için 0
-  bounciness: number; // 0 = hiç sekmez, 1 = tam sekme
+  invMass: number; // 1/mass — 0 for static bodies
+  bounciness: number; // 0 = no bounce, 1 = full bounce
 }
 
 export function createBody(

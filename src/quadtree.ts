@@ -24,7 +24,7 @@ export class QuadTree<T extends HasBounds> {
       if (c) {
         c.insert(item);
         return;
-      } // tam bir çocuğa sığıyorsa oraya in
+      } // descend into child if it completely fits
     }
     this.items.push(item);
     if (
@@ -36,7 +36,7 @@ export class QuadTree<T extends HasBounds> {
     }
   }
 
-  // Bounds'u dörde böl, 4 çocuk oluştur, mevcut item'ları uygun çocuklara dağıt.
+  // Subdivide bounds into four quadrants, create 4 children, distribute existing items to suitable children.
   private subdivide(): void {
     const { x, y, w, h } = this.bounds;
     const hw = w / 2;
@@ -58,12 +58,12 @@ export class QuadTree<T extends HasBounds> {
     for (const item of this.items) {
       const c = this.childFor(item);
       if (c) c.insert(item);
-      else kept.push(item); // sınırı aşanlar (straddle) üst düğümde kalır
+      else kept.push(item); // items straddling boundaries stay in the parent node
     }
     this.items = kept;
   }
 
-  // Item'ın AABB'si tek bir çocuğa TAMAMEN sığıyorsa o çocuğu, yoksa null döndür.
+  // Returns the child node if the item's AABB fits ENTIRELY within a single child, otherwise returns null.
   private childFor(item: T): QuadTree<T> | null {
     if (!this.children) return null;
     const minX = item.pos.x - item.radius;
@@ -77,14 +77,14 @@ export class QuadTree<T extends HasBounds> {
     return null;
   }
 
-  // Aday çiftler: her düğümün kendi içi + atalarındaki cisimlerle eşleşmesi.
+  // Candidate pairs: within each node + matching items with their ancestors.
   queryPairs(): Array<[T, T]> {
     const out: Array<[T, T]> = [];
     this.collect([], out);
     return out;
   }
 
-  // Bu düğümün item'ları arası (i<j) çiftler + item'lar × atalar; sonra çocuklara in.
+  // Pairs between items in this node (i<j) + items x ancestors; then recurse into children.
   private collect(ancestorItems: T[], out: Array<[T, T]>): void {
     const items = this.items;
     for (let i = 0; i < items.length; i++) {

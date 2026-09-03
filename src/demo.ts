@@ -2,7 +2,7 @@ import { type Body, createBody } from "./body";
 import { add, sub, scale, length, dot, normalize } from "./vec";
 import { SpatialHashGrid } from "./grid";
 
-// --- FPS sayacı: 500ms pencere (makaledeki blok) ---
+// --- FPS counter: 500ms window ---
 let frames = 0;
 let fpsSince = performance.now();
 let fps = 0;
@@ -16,7 +16,7 @@ function sampleFps(now: number) {
   }
 }
 
-// --- Sahne ---
+// --- Scene ---
 const canvas = document.getElementById("scene") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
 const W = (canvas.width = window.innerWidth);
@@ -24,16 +24,16 @@ const H = (canvas.height = window.innerHeight);
 
 const GRAVITY = 900;
 const bodies: Body[] = [];
-// Hücre boyutu ≈ en büyük cismin çapının 1–2 katı (çap 12 → 24). Çok büyük seçilirse
-// (ör. 48) yoğun yığında her hücreye onlarca cisim düşer ve aday çift sayısı patlar.
+// Cell size ≈ 1-2x the diameter of the largest body (diameter 12 → 24). If chosen too large
+// (e.g. 48), in dense stacks every cell contains dozens of bodies and candidate pair count explodes.
 const grid = new SpatialHashGrid<Body>(16);
 
-let useGrid = true; // false → naif O(n²)
+let useGrid = true; // false → naive O(n²)
 
-// --- Enstrümantasyon: zaman nereye gidiyor? ---
-let broadMs = 0; // broad-phase (grid clear+insert+queryPairs) süresi
-let narrowMs = 0; // narrow-phase (collideBodies) süresi
-let candCount = 0; // bu karede narrow-phase'e giden aday çift sayısı
+// --- Instrumentation: where does the time go? ---
+let broadMs = 0; // broad-phase (grid clear+insert+queryPairs) duration
+let narrowMs = 0; // narrow-phase (collideBodies) duration
+let candCount = 0; // candidate pair count sent to narrow-phase in this frame
 
 function spawn(count: number) {
   for (let i = 0; i < count; i++) {
@@ -45,7 +45,7 @@ function spawn(count: number) {
   }
 }
 
-// Narrow-phase: iki cismi çöz (motordaki collideBodies ile aynı matematik).
+// Narrow-phase: resolve two bodies (same math as engine collideBodies).
 function collideBodies(a: Body, b: Body) {
   const totalInvMass = a.invMass + b.invMass;
   if (totalInvMass === 0) return;
@@ -93,7 +93,7 @@ function step(dt: number) {
   for (const b of bodies) collideWalls(b);
 
   if (useGrid) {
-    // BROAD-PHASE: uzamsal hash ızgarası
+    // BROAD-PHASE: spatial hash grid
     const t0 = performance.now();
     grid.clear();
     for (const b of bodies) grid.insert(b);
@@ -104,7 +104,7 @@ function step(dt: number) {
     broadMs = t1 - t0;
     narrowMs = performance.now() - t1;
   } else {
-    // NAİF: her çift bir kez (O(n²))
+    // NAIVE: every pair once (O(n²))
     const t0 = performance.now();
     let c = 0;
     for (let i = 0; i < bodies.length; i++) {
@@ -130,13 +130,13 @@ function draw() {
   ctx.fillStyle = "#fbbf24";
   ctx.font = "16px system-ui, sans-serif";
   ctx.fillText(
-    `FPS ${fps}  •  cisim ${bodies.length}  •  mod: ${useGrid ? "grid" : "naif O(n²)"}  •  cell ${grid.cellSize}`,
+    `FPS ${fps}  •  bodies ${bodies.length}  •  mode: ${useGrid ? "grid" : "naive O(n²)"}  •  cell ${grid.cellSize}`,
     14,
     26,
   );
   ctx.fillStyle = "#94a3b8";
   ctx.fillText(
-    `aday çift ${candCount.toLocaleString("tr")}  •  broad ${broadMs.toFixed(1)}ms  •  narrow ${narrowMs.toFixed(1)}ms`,
+    `candidate pairs ${candCount.toLocaleString("en-US")}  •  broad ${broadMs.toFixed(1)}ms  •  narrow ${narrowMs.toFixed(1)}ms`,
     14,
     48,
   );

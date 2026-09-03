@@ -1,29 +1,29 @@
 import type { Vec2 } from "./vec";
 
-// Izgaraya girebilen her şey: bir konumu ve bir yarıçapı olsun, gerisi umurunda değil.
+// Everything that can enter the grid: must have a position and a radius.
 export interface HasBounds {
   pos: Vec2;
   radius: number;
 }
 
 export class SpatialHashGrid<T extends HasBounds> {
-  private cells = new Map<string, number[]>(); // hücre anahtarı → o hücredeki cisim id'leri
-  private items: T[] = []; // id (indeks) → cisim
+  private cells = new Map<string, number[]>(); // cell key -> body IDs in that cell
+  private items: T[] = []; // id (index) -> item
 
   constructor(public readonly cellSize: number) {}
 
-  // Her kareyi taze başlat: eski hücreleri sil.
+  // Fresh start each frame: clear previous cells.
   clear(): void {
     this.cells.clear();
     this.items.length = 0;
   }
 
-  // Bir hücre koordinatını Map anahtarına çevir.
+  // Convert single cell coordinates to Map key.
   private hash(cx: number, cy: number): string {
     return cx + "," + cy;
   }
 
-  // Bir dünya koordinatını hücre koordinatına indir.
+  // Project world coordinate into cell coordinate.
   private cellOf(v: number): number {
     return Math.floor(v / this.cellSize);
   }
@@ -60,7 +60,7 @@ export class SpatialHashGrid<T extends HasBounds> {
         for (let j = i + 1; j < cell.length; j++) {
           const a = cell[i];
           const b = cell[j];
-          // Küçük id * N + büyük id → her çift için tek, çakışmasız anahtar.
+          // small id * N + large id -> unique, non-colliding key for each pair.
           const lo = a < b ? a : b;
           const hi = a < b ? b : a;
           const key = lo * n + hi;
@@ -74,7 +74,7 @@ export class SpatialHashGrid<T extends HasBounds> {
   }
 
   insertSwept(item: T & { vel: Vec2 }, dt: number): void {
-    const nx = item.pos.x + item.vel.x * dt; // bir sonraki karedeki konum
+    const nx = item.pos.x + item.vel.x * dt; // position in the next frame
     const ny = item.pos.y + item.vel.y * dt;
 
     const minX = Math.min(item.pos.x, nx) - item.radius;

@@ -1,12 +1,12 @@
 import { benchmark } from "./benchmark";
 
-// Aday çift sayıları: narrow-phase'in kaç kez çağrılacağı. Deterministik metrik.
+// Candidate pair counts: how many times narrow-phase is invoked. Deterministic metric.
 const rows = [200, 2000, 20000].map((n) => benchmark(n));
 
 const fmt = (x: number) => x.toLocaleString("en-US");
 const pad = (s: string, w: number) => s.padStart(w);
 
-console.log("Broad-phase aday çift sayıları (sabit yoğunluk, seed=1)\n");
+console.log("Broad-phase candidate pair counts (constant density, seed=1)\n");
 console.log(
   pad("n", 8) +
     pad("naive n(n-1)/2", 18) +
@@ -27,6 +27,6 @@ console.log("");
 for (const r of rows) {
   const ratio = Math.round(r.naive / r.gridPairs);
   console.log(
-    `n=${fmt(r.n)}: grid, naif'ten ~${fmt(ratio)}x az aday üretiyor.`,
+    `n=${fmt(r.n)}: grid produces ~${fmt(ratio)}x fewer candidates than naive.`,
   );
 }
