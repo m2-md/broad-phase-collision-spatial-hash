@@ -4,6 +4,9 @@
 **▶ [Live demo](https://m2-md.github.io/broad-phase-collision-spatial-hash/)** · [Source](https://github.com/m2-md/broad-phase-collision-spatial-hash)
 <!-- LINKS:END -->
 
+> Broad-phase 2D collision detection: comparing naive O(n²) pairwise checks against a
+> spatial hash grid and a quadtree, from 200 objects to 20,000.
+
 Working code for the article "Shaking Hands with Everyone: Broad-Phase Collision
 and the Spatial Hash Grid from 200 Objects to 20,000". It takes the naive O(n²)
 pair-by-pair collision test down to near-linear with a spatial hash grid — without
@@ -35,7 +38,7 @@ npm install
 
 ## Running
 
-> ⚠️ **Do not double-click `index.html` and open it directly.** The demo loads a
+> **Do not double-click `index.html` and open it directly.** The demo loads a
 > TypeScript module (`<script type="module" src="/src/demo.ts">`); the browser
 > cannot run a `.ts` file on its own. If you open it with `file://` you get a blank
 > screen. The `npm run dev` (Vite) command below compiles the TypeScript and serves
@@ -124,6 +127,13 @@ test/
   grid.test.ts  # brute-force parity + double counting + large body + quadtree parity
 index.html      # demo entry point
 ```
+
+## Tech stack
+
+- TypeScript
+- Vite
+- Vitest
+- HTML5 Canvas 2D
 
 ## License
 
