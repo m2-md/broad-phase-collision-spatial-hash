@@ -1,4 +1,3 @@
-
 # Herkesle Tokalaşmak: 200 Nesneden 20.000'e Broad-Phase Çarpışma ve Uzamsal Hash Izgarası
 
 *Kendi fizik motorumuzdaki O(n²) çift-çift çarpışma testini, 20.000 nesnede bile 60 FPS koruyan bir spatial hash grid ile neredeyse-doğrusala indiriyoruz — narrow-phase'e tek satır dokunmadan.*
